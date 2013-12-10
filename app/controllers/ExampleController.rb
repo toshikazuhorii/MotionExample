@@ -1,5 +1,5 @@
 class ExampleController < UIViewController
-  CELL_REUSE_IDENTIFIER = 'cell'
+  CELL_REUSE_IDENTIFIER = 'Items'
   
   def viewDidLoad
     super
@@ -20,26 +20,34 @@ class ExampleController < UIViewController
   end
   
   def tableView(tableView, cellForRowAtIndexPath:indexPath)
-    cell = tableView.dequeueReusableCellWithIdentifier(CELL_REUSE_IDENTIFIER) || begin
-      UITableViewCell.alloc.initWithStyle(
+    cell = tableView.dequeueReusableCellWithIdentifier(CELL_REUSE_IDENTIFIER)
+    
+    if cell.nil?
+      cell = ExampleCell.alloc.initWithStyle(
         UITableViewCellStyleDefault,
         reuseIdentifier:CELL_REUSE_IDENTIFIER
       )
+      
+      # thumbnail
+      image_view = UIImageView.alloc.initWithFrame(CGRectMake(5, 5, 32, 32))
+      cell.thumbnail = image_view
+      cell.addSubview(image_view)
+      
+      # text label
+      label = UILabel.alloc.initWithFrame(CGRectMake(45, 10, 250, 20))
+      label.font = UIFont.boldSystemFontOfSize(12)
+      cell.label = label
+      cell.addSubview(label)
     end
     
     item = @data[indexPath.row]
     
-    # text label
-    image_data = NSData.dataWithContentsOfURL(NSURL.URLWithString(item[:image_url]))
-    image_view = UIImageView.alloc.initWithImage(UIImage.imageWithData(image_data))
-    image_view.frame = CGRectMake(5, 5, 32, 32)
-    cell.addSubview(image_view)
-    
     # thumbnail
-    label = UILabel.alloc.initWithFrame(CGRectMake(45, 10, 250, 20))
-    label.font = UIFont.boldSystemFontOfSize(12)
-    label.text = item[:name]
-    cell.addSubview(label)
+    image_data = NSData.dataWithContentsOfURL(NSURL.URLWithString(item[:image_url]))
+    cell.thumbnail.image = UIImage.imageWithData(image_data)
+    
+    # text label
+    cell.label.text = item[:name]
     
     return cell
   end
